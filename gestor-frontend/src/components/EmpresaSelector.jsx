@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BadgeCheck,
   Building2,
+  ChevronDown,
   Palette,
   RefreshCcw,
   Search,
@@ -80,6 +81,7 @@ export default function EmpresaSelector() {
   const [selectedId, setSelectedId] = useState('');
   const [query, setQuery] = useState('');
   const [onlyFav, setOnlyFav] = useState(false);
+  const [showEmpresas, setShowEmpresas] = useState(false);
   const [favorites, setFavorites] = useState(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem('empresaFavs') || '[]'));
@@ -170,6 +172,18 @@ export default function EmpresaSelector() {
     || null
   ), [allItems, filteredItems, selectedId]);
 
+  const filteredAutonomos = useMemo(
+    () => filteredItems.filter((item) => item.esAutonomo),
+    [filteredItems]
+  );
+
+  const filteredEmpresas = useMemo(
+    () => filteredItems.filter((item) => !item.esAutonomo),
+    [filteredItems]
+  );
+
+  const selectedEmpresaInCollapse = selectedItem && !selectedItem.esAutonomo;
+
   const selectedThemeId = selectedItem
     ? themeMap[selectedItem.id] || pickDefaultTheme(selectedItem)
     : themeName;
@@ -192,6 +206,78 @@ export default function EmpresaSelector() {
     favoritas: favorites.size,
     filtradas: filteredItems.length
   }), [allItems.length, favorites.size, filteredItems.length]);
+
+  const renderTenantButton = (item) => {
+    const isSelected = String(item.id) === selectedId;
+    const isFav = favorites.has(String(item.id));
+
+    return (
+      <motion.button
+        key={item.id}
+        layout
+        type="button"
+        onClick={() => setSelectedId(String(item.id))}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 8 }}
+        transition={{ duration: 0.2 }}
+        className="group w-full rounded-2xl border px-5 py-4 text-left transition"
+        style={{
+          borderColor: isSelected ? 'var(--theme-accent)' : 'var(--theme-card-border)',
+          background: isSelected ? 'var(--theme-accent-soft)' : 'var(--theme-card)'
+        }}
+      >
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
+              {item.esAutonomo ? 'Aut\u00f3nomo' : `ID ${item.id}`}
+            </p>
+            <p className="text-lg font-semibold text-white">{item.nombre}</p>
+            <p className="text-xs text-slate-400">
+              {item.esAutonomo ? '' : 'Tenant listo para operar.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
+              style={{
+                borderColor: item.esAutonomo ? 'rgba(99,102,241,0.3)' : 'var(--theme-card-border)',
+                background: item.esAutonomo ? 'rgba(99,102,241,0.1)' : 'var(--theme-chip)',
+                color: item.esAutonomo ? '#818cf8' : 'inherit'
+              }}
+            >
+              <BadgeCheck className="h-4 w-4" />
+              {item.esAutonomo ? 'Aut\u00f3nomo' : 'Operativa'}
+            </span>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setFavorites((prev) => {
+                  const next = new Set(prev);
+                  const key = String(item.id);
+                  if (next.has(key)) {
+                    next.delete(key);
+                  } else {
+                    next.add(key);
+                  }
+                  return next;
+                });
+              }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border text-white transition"
+              style={{
+                borderColor: 'var(--theme-card-border)',
+                background: isFav ? 'var(--theme-accent-soft)' : 'transparent'
+              }}
+              aria-label="Marcar favorita"
+            >
+              <Star className={`h-4 w-4 ${isFav ? '' : 'opacity-60'}`} />
+            </button>
+          </div>
+        </div>
+      </motion.button>
+    );
+  };
 
   return (
     <div
@@ -319,76 +405,65 @@ export default function EmpresaSelector() {
 
             <div className="flex flex-col gap-3">
               <AnimatePresence mode="popLayout">
-                {filteredItems.map((item) => {
-                  const isSelected = String(item.id) === selectedId;
-                  const isFav = favorites.has(String(item.id));
-                  return (
-                    <motion.button
-                      key={item.id}
-                      layout
+                {filteredAutonomos.map((item) => renderTenantButton(item))}
+                {filteredEmpresas.length > 0 && (
+                  <motion.div
+                    layout
+                    className="overflow-hidden rounded-2xl border"
+                    style={{ borderColor: 'var(--theme-card-border)', background: 'var(--theme-card)' }}
+                  >
+                    <button
                       type="button"
-                      onClick={() => setSelectedId(String(item.id))}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 8 }}
-                      transition={{ duration: 0.2 }}
-                      className="group w-full rounded-2xl border px-5 py-4 text-left transition"
-                      style={{
-                        borderColor: isSelected ? 'var(--theme-accent)' : 'var(--theme-card-border)',
-                        background: isSelected ? 'var(--theme-accent-soft)' : 'var(--theme-card)'
-                      }}
+                      onClick={() => setShowEmpresas((prev) => !prev)}
+                      className="flex w-full flex-wrap items-center justify-between gap-3 px-5 py-4 text-left transition"
+                      aria-expanded={showEmpresas}
                     >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
-                            {item.esAutonomo ? 'Autónomo' : `ID ${item.id}`}
-                          </p>
-                          <p className="text-lg font-semibold text-white">{item.nombre}</p>
-                          <p className="text-xs text-slate-400">
-                            {item.esAutonomo ? '' : 'Tenant listo para operar.'}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
+                      <div>
+                        <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Empresas</p>
+                        <p className="text-lg font-semibold text-white">
+                          {filteredEmpresas.length} {filteredEmpresas.length === 1 ? 'empresa disponible' : 'empresas disponibles'}
+                        </p>
+                        {selectedEmpresaInCollapse && (
+                          <p className="text-xs text-slate-400">Seleccionada: {selectedItem.nombre}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {selectedEmpresaInCollapse && (
                           <span
-                            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs"
-                            style={{
-                              borderColor: item.esAutonomo ? 'rgba(99,102,241,0.3)' : 'var(--theme-card-border)',
-                              background: item.esAutonomo ? 'rgba(99,102,241,0.1)' : 'var(--theme-chip)',
-                              color: item.esAutonomo ? '#818cf8' : 'inherit'
-                            }}
+                            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs text-white"
+                            style={{ borderColor: 'var(--theme-accent)', background: 'var(--theme-accent-soft)' }}
                           >
                             <BadgeCheck className="h-4 w-4" />
-                            {item.esAutonomo ? 'Autónomo' : 'Operativa'}
+                            Activa
                           </span>
-                          <button
-                            type="button"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setFavorites((prev) => {
-                                const next = new Set(prev);
-                                const key = String(item.id);
-                                if (next.has(key)) {
-                                  next.delete(key);
-                                } else {
-                                  next.add(key);
-                                }
-                                return next;
-                              });
-                            }}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-full border text-white transition"
-                            style={{
-                              borderColor: 'var(--theme-card-border)',
-                              background: isFav ? 'var(--theme-accent-soft)' : 'transparent'
-                            }}
-                            aria-label="Marcar favorita"
-                          >
-                            <Star className={`h-4 w-4 ${isFav ? '' : 'opacity-60'}`} />
-                          </button>
-                        </div>
+                        )}
+                        <span
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border text-white"
+                          style={{ borderColor: 'var(--theme-card-border)', background: 'var(--theme-chip)' }}
+                        >
+                          <ChevronDown className={`h-5 w-5 transition-transform ${showEmpresas ? 'rotate-180' : ''}`} />
+                        </span>
                       </div>
-                    </motion.button>
-                  );
-                })}
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {showEmpresas && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22 }}
+                          className="overflow-hidden border-t"
+                          style={{ borderColor: 'var(--theme-card-border)' }}
+                        >
+                          <div className="flex flex-col gap-3 p-3">
+                            {filteredEmpresas.map((item) => renderTenantButton(item))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
               </AnimatePresence>
               {filteredItems.length === 0 && (
                 <div
