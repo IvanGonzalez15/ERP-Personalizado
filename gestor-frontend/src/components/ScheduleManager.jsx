@@ -554,7 +554,7 @@ export default function ScheduleManager() {
               key={day}
               onClick={() => handleDayClick(day)}
               className={`
-                group cursor-pointer border rounded-lg h-24 w-full p-2 text-sm font-medium flex flex-col items-center justify-center relative transition-all duration-200
+                group cursor-pointer border rounded-lg h-24 w-full p-2 text-sm font-medium flex flex-col items-center justify-center relative transition-all duration-200 overflow-hidden
                 ${bajamedica ? 'bg-red-100 text-red-700' : ''}
                 ${festivo ? 'bg-purple-100 text-purple-700' : ''}
                 ${vacaciones ? 'bg-green-100 text-green-700' : ''}
@@ -598,7 +598,7 @@ export default function ScheduleManager() {
               )}
 
               {(totalHoras > 0 || horaNegativa > 0 || diaNegativo || pagada) && !vacaciones && !bajamedica && (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center w-full min-w-0">
                   {totalHoras > 0 && (
                     <span className="text-base font-bold">
                       {formatHoursToHM(totalHoras)}
@@ -615,18 +615,18 @@ export default function ScheduleManager() {
                     </span>
                   )}
                   {eventos[0]?.proyecto_nombre && (
-                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                      <Folder className="w-4 h-4" />
-                      <span className="truncate max-w-[6rem]">{eventos[0].proyecto_nombre}</span>
+                    <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 w-full justify-center min-w-0 px-1">
+                      <Folder className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate max-w-[5.5rem]">{eventos[0].proyecto_nombre}</span>
                     </div>
                   )}
                 </div>
               )}
 
               {totalHoras === 0 && horaNegativa <= 0 && !diaNegativo && !festivo && !bajamedica && eventos[0]?.proyecto_nombre && (
-                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
-                  <Folder className="w-4 h-4" />
-                  <span className="truncate max-w-[6rem]">{eventos[0].proyecto_nombre}</span>
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1 w-full justify-center min-w-0 px-1">
+                  <Folder className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate max-w-[5.5rem]">{eventos[0].proyecto_nombre}</span>
                 </div>
               )}
 
