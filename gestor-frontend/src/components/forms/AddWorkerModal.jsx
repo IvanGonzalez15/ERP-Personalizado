@@ -175,13 +175,57 @@ export default function AddWorkerModal({ open, onClose, onWorkerAdded }) {
         if (name === 'permiso_b' && !nextValue) {
           nextForm.fecha_permiso_b = '';
         }
+        if (name === 'a1' && !nextValue) {
+          nextForm.fecha_a1 = '';
+          nextForm.fechafin_a1 = '';
+          nextForm.limosa = false;
+          nextForm.fecha_limosa = '';
+          nextForm.fechafin_limosa = '';
+        }
+        if (name === 'limosa' && !nextValue) {
+          nextForm.fecha_limosa = '';
+          nextForm.fechafin_limosa = '';
+        }
+        if (name === 'epis' && !nextValue) {
+          nextForm.fecha_epis = '';
+        }
+        if (name === 'desplazamiento' && !nextValue) {
+          nextForm.fecha_desplazamiento = '';
+        }
+        if (name === 'revision_medica' && !nextValue) {
+          nextForm.fecha_revision_medica = '';
+        }
         return nextForm;
       });
       if (name === 'nda_firmado' && !nextValue) {
         setNdaFile(null);
       }
     }
-    if (formErrors[name]) {
+
+    if (name === 'a1' && !nextValue) {
+      setFormErrors((prev) => ({
+        ...prev,
+        fecha_a1: undefined,
+        fechafin_a1: undefined,
+        limosa: undefined,
+        fecha_limosa: undefined,
+        fechafin_limosa: undefined
+      }));
+    } else if (name === 'limosa' && !nextValue) {
+      setFormErrors((prev) => ({
+        ...prev,
+        fecha_limosa: undefined,
+        fechafin_limosa: undefined
+      }));
+    } else if (name === 'epis' && !nextValue) {
+      setFormErrors((prev) => ({ ...prev, fecha_epis: undefined }));
+    } else if (name === 'desplazamiento' && !nextValue) {
+      setFormErrors((prev) => ({ ...prev, fecha_desplazamiento: undefined }));
+    } else if (name === 'revision_medica' && !nextValue) {
+      setFormErrors((prev) => ({ ...prev, fecha_revision_medica: undefined }));
+    } else if (name === 'permiso_b' && !nextValue) {
+      setFormErrors((prev) => ({ ...prev, fecha_permiso_b: undefined }));
+    } else if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
@@ -419,7 +463,11 @@ export default function AddWorkerModal({ open, onClose, onWorkerAdded }) {
                 {form.nda_firmado && renderFileInput('PDF NDA', 'nda')}
                 {form.revision_medica && renderInput('Fecha revisión médica', 'fecha_revision_medica', '', 'date')}
                 {!isPracticasContract && form.a1 && renderInput('Fecha A1', 'fecha_a1', '', 'date')}
+                {!isPracticasContract && form.a1 && renderInput('Fin A1', 'fechafin_a1', '', 'date')}
+                {!isPracticasContract && form.a1 && form.limosa && renderInput('Fecha Limosa', 'fecha_limosa', '', 'date')}
+                {!isPracticasContract && form.a1 && form.limosa && renderInput('Fin Limosa', 'fechafin_limosa', '', 'date')}
                 {form.permiso_b && renderInput('Fecha B', 'fecha_permiso_b', '', 'date')}
+                {form.epis && renderInput('Fecha EPIs', 'fecha_epis', '', 'date')}
                 {!isPracticasContract && form.desplazamiento && renderInput('Fecha Desplazamiento', 'fecha_desplazamiento', '', 'date')}
               </SectionCard>
 

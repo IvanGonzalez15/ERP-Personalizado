@@ -72,6 +72,27 @@ const normalizeTrabajadorPayload = (payload, { applyDefaults = false } = {}) => 
     normalized.fecha_permiso_b = null;
   }
 
+  if (normalized.a1 === false) {
+    normalized.fecha_a1 = null;
+    normalized.fechafin_a1 = null;
+    normalized.limosa = false;
+    normalized.fecha_limosa = null;
+    normalized.fechafin_limosa = null;
+  }
+
+  if (normalized.limosa === false) {
+    normalized.fecha_limosa = null;
+    normalized.fechafin_limosa = null;
+  }
+
+  if (normalized.epis === false) {
+    normalized.fecha_epis = null;
+  }
+
+  if (normalized.desplazamiento === false) {
+    normalized.fecha_desplazamiento = null;
+  }
+
   if (normalized.tipo_trabajador === 'Prácticas') {
     normalized.practicas = true;
   }
